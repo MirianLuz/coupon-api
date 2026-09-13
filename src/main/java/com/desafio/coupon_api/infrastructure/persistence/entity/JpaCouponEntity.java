@@ -1,7 +1,12 @@
 package com.desafio.coupon_api.infrastructure.persistence.entity;
 
 import com.desafio.coupon_api.domain.enuns.CouponStatus;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import jakarta.persistence.Id;
+import jakarta.persistence.Column;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.EnumType;
 import lombok.Getter;
 import org.hibernate.annotations.SQLDelete;
 
