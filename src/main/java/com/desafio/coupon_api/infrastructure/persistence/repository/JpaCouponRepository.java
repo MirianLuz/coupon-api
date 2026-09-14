@@ -7,4 +7,6 @@ import java.util.UUID;
 
 public interface JpaCouponRepository extends JpaRepository<JpaCouponEntity, UUID> {
 
+    boolean existsByCode(String code);
+
 }

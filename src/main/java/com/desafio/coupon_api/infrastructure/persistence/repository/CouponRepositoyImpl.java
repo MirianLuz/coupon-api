@@ -39,4 +39,9 @@ public class CouponRepositoyImpl implements CouponRepository {
         return jpaCouponRepository.findById(id)
                 .map(mapper::toDomain);
     }
+
+    @Override
+    public boolean existsByCode(String code) {
+            return jpaCouponRepository.existsByCode(code);
+    }
 }

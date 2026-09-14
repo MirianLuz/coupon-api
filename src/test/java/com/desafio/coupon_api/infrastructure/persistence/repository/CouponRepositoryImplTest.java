@@ -25,7 +25,6 @@ import static org.mockito.Mockito.never;
 
 @ExtendWith(MockitoExtension.class)
 class CouponRepositoryImplTest {
-
     @Mock
     private JpaCouponRepository jpaRepository;
 

@@ -4,6 +4,7 @@ import com.desafio.coupon_api.application.dto.CouponRequest;
 import com.desafio.coupon_api.application.dto.CouponResponse;
 import com.desafio.coupon_api.application.usecase.CouponUseCases;
 import com.desafio.coupon_api.domain.entity.Coupon;
+import com.desafio.coupon_api.domain.exceptions.CouponAlreadyExistsException;
 import com.desafio.coupon_api.domain.exceptions.CouponNotFoundException;
 import com.desafio.coupon_api.domain.repository.CouponRepository;
 import com.desafio.coupon_api.infrastructure.persistence.mapper.CouponMapper;
@@ -37,6 +38,10 @@ public class CouponServiceImpl implements CouponUseCases {
                 request.expirationDate(),
                 Boolean.TRUE.equals(request.published())
         );
+
+        if (couponRepository.existsByCode(coupon.getCode())) {
+            throw new CouponAlreadyExistsException(coupon.getCode());
+        }
 
         Coupon savedCoupon = couponRepository.save(coupon);
 
