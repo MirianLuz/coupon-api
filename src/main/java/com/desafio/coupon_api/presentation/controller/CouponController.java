@@ -4,6 +4,8 @@ import com.desafio.coupon_api.application.dto.CouponRequest;
 import com.desafio.coupon_api.application.dto.CouponResponse;
 import com.desafio.coupon_api.application.usecase.CouponUseCases;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +22,9 @@ import java.util.UUID;
 @RequestMapping("/coupon")
 public class CouponController {
 
+    private static final Logger log =
+            LoggerFactory.getLogger(CouponController.class);
+
     private final CouponUseCases couponUseCases;
 
     public CouponController(CouponUseCases couponUseCases) {
@@ -29,7 +34,14 @@ public class CouponController {
     @PostMapping
     public ResponseEntity<CouponResponse> create(@Valid @RequestBody CouponRequest request) {
 
+        log.info("Recebida solicitação para criação de cupom. code={}",
+                request.code());
+
         CouponResponse response = couponUseCases.createCoupon(request);
+
+        log.info("Cupom criado com sucesso. id={}, code={}",
+                response.id(),
+                response.code());
 
         return ResponseEntity
                 .created(URI.create("/coupon/" + response.id()))
@@ -38,7 +50,7 @@ public class CouponController {
 
     @GetMapping("/{id}")
     public ResponseEntity<CouponResponse> getCoupon(@PathVariable UUID id) {
-
+        log.info("Consultando cupom. id={}", id);
         return ResponseEntity.ok(
                 couponUseCases.getCoupon(id)
         );
@@ -46,7 +58,9 @@ public class CouponController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCoupon(@PathVariable UUID id) {
+        log.info("Solicitação de exclusão de cupom. id={}", id);
         couponUseCases.deleteCoupon(id);
+        log.info("Cupom excluído logicamente com sucesso. id={}", id);
         return ResponseEntity.noContent().build();
     }
 }

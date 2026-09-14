@@ -18,3 +18,10 @@ spring:
       settings:
         web-allow-others: true
         trace: false
+
+logging:
+  level:
+    root: INFO
+    com.coupon.desafio.coupon: DEBUG
+    org.springframework.web: INFO
+    org.hibernate.SQL: DEBUG

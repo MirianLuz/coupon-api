@@ -8,7 +8,10 @@ import com.desafio.coupon_api.domain.exceptions.CouponAlreadyExistsException;
 import com.desafio.coupon_api.domain.exceptions.CouponNotFoundException;
 import com.desafio.coupon_api.domain.repository.CouponRepository;
 import com.desafio.coupon_api.infrastructure.persistence.mapper.CouponMapper;
+import com.desafio.coupon_api.presentation.controller.CouponController;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +20,9 @@ import java.util.UUID;
 @Service
 @Slf4j
 public class CouponServiceImpl implements CouponUseCases {
+
+    private static final Logger log =
+            LoggerFactory.getLogger(CouponController.class);
 
     private final CouponRepository couponRepository;
 
@@ -30,6 +36,7 @@ public class CouponServiceImpl implements CouponUseCases {
     @Override
     @Transactional
     public CouponResponse createCoupon(CouponRequest request) {
+        log.info("Iniciando criação do cupom. code={}", request.code());
 
         Coupon coupon = Coupon.create(
                 request.code(),
@@ -39,11 +46,20 @@ public class CouponServiceImpl implements CouponUseCases {
                 Boolean.TRUE.equals(request.published())
         );
 
+        log.debug("Cupom criado no domínio. id={}, code={}, published={}",
+                coupon.getId(),
+                coupon.getCode(),
+                coupon.isPublished());
+
         if (couponRepository.existsByCode(coupon.getCode())) {
             throw new CouponAlreadyExistsException(coupon.getCode());
         }
 
         Coupon savedCoupon = couponRepository.save(coupon);
+
+        log.info("Cupom persistido com sucesso. id={}, code={}",
+                savedCoupon.getId(),
+                savedCoupon.getCode());
 
         return toResponse(savedCoupon);
     }
@@ -51,12 +67,19 @@ public class CouponServiceImpl implements CouponUseCases {
     @Override
     @Transactional(readOnly = true)
     public CouponResponse getCoupon(UUID id) {
+
+        log.info("Buscando cupom. id={}", id);
+
         Coupon coupon = couponRepository.findById(id)
                 .orElseThrow(() ->
                         new CouponNotFoundException(
                                 "Cupom não encontrado: " + id
                         )
                 );
+
+        log.debug("Cupom encontrado. id={}, status={}",
+                coupon.getId(),
+                coupon.getStatus());
 
         return toResponse(coupon);
     }
@@ -64,14 +87,22 @@ public class CouponServiceImpl implements CouponUseCases {
     @Override
     @Transactional
     public void deleteCoupon(UUID id) {
+        log.info("Iniciando exclusão lógica do cupom. id={}", id);
+
         Coupon coupon = couponRepository.findById(id)
-                .orElseThrow(() ->
-                        new CouponNotFoundException(
-                                "Cupom não encontrado: " + id
-                        )
-                );
+                .orElseThrow(() -> {
+                    log.warn("Tentativa de excluir cupom inexistente. id={}", id);
+
+                    return new CouponNotFoundException(
+                            "Cupom não encontrado: " + id
+                    );
+                });
 
         coupon.delete();
+
+        log.info("Exclusão lógica concluída. id={}, status={}",
+                coupon.getId(),
+                coupon.getStatus());
 
         couponRepository.save(coupon);
     }
